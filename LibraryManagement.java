@@ -1,10 +1,10 @@
-
 import java.util.Date; 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -105,8 +105,29 @@ class Student
         delete(key);
         insert(key1);
      }
-     void delete(String key){
-        root=deleteRec( root,key);
+
+     void delete(String key) {
+         root = deleteRec(root, key);
+         if (root != null) {
+             // Update "x.txt" file with the updated book list after deletion
+             try {
+                 File file = new File("x.txt");
+                 FileWriter fr = new FileWriter(file, false); // Set the second argument to 'false' to overwrite the file
+                 BufferedWriter br = new BufferedWriter(fr);
+                 inorderRecForFileWrite(root, br);
+                 br.close();
+                 fr.close();
+             } catch (IOException e) {
+                 e.printStackTrace();
+             }
+         }
+     }
+     void inorderRecForFileWrite(Node root, BufferedWriter br) throws IOException {
+         if (root != null) {
+             inorderRecForFileWrite(root.left, br);
+             br.write(root.key + "\n"); // Write each book name followed by a new line
+             inorderRecForFileWrite(root.right, br);
+         }
      }
      Node deleteRec(Node root,String key){
         if(root==null){
@@ -198,6 +219,23 @@ class Student
         System.out.print("["+node.key+"]");
         return printTreeRec(node.left,space);
     }
+    void writeToTextFile(String bookName, int quantity) {
+        try {
+            FileWriter fw = new FileWriter("books.txt", true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(bookName + "," + quantity); // Writing book name and quantity in the format "BookName,Quantity"
+            bw.newLine(); // Adding a new line for the next book
+            bw.close();
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    Date calculateDueDate() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, 7); // Adding 7 days to the current date
+        return cal.getTime();
+    }
 }
    
     public class LibraryManagement{
@@ -282,9 +320,9 @@ class Student
                         System.out.println("2.Delete book");
                         System.out.println("3.Update book");
                         System.out.println("4.Print book details ");
-                        System.out.println("Print books Inorder ");
-                        System.out.println("Print Tree");
-                        System.out.println("Exit");
+                        System.out.println("5.Print books Inorder ");
+                        System.out.println("6.Print Tree");
+                        System.out.println("7.Exit");
 
                         System.out.println("\n-----------------------------------------------------------------\n");
 
@@ -292,62 +330,43 @@ class Student
                         int ch2=sc.nextInt();
                         switch(ch2){
                             //ADD BOOK
-                            case 1:
-                            String line;
-                            
-                            while((line=reader.readLine())!=null)
-                            {   
-                                
-                            
-                                tree.insert(line);
-                                map.put(line,i);
-                                i++;
-                            }
-                            int j=i;
-                            int o=0;
-                            String number;
-                            while((number =reader2.readLine())!=null){
-                                int result =Integer.parseInt(number);
-                                if(j!=o){
-                                    ar[o][0]=result;
+                       
+                        case 1:
+                            // Existing code to read from x.txt and y.txt
 
-                                }
-                                o++;
-                            }
-                            int pq=0;
-                            String number1;
-                            while((number1=reader3.readLine())!=null)
-                            {
-                                int result1=Integer.parseInt(number1);
-                                if(j!=pq){
-                                    ar[pq][1]=result1;
-                                }
-                                    pq++;
-                                
-                            }
-                            System.out.println("Enter the name of book ");
-                            String name=sc.next();
-                            boolean z1=tree.containsNode(name);
-                            if(z1==true){
-                                System.out.println("\nIt is alrready Exits:");
+                            System.out.println("Enter the name of the book: ");
+                           
+                            String name = sc.next();
 
-                            }
-                            else{
-                                System.out.println("\nEnter the Quantity of book :");
-                                int qunt=sc.nextInt();
-                                br1.write(name);
-                                br2.write(qunt);
-                                br3.write(qunt);
+                            boolean z1 = tree.containsNode(name);
+                            if (z1 == true) {
+                                System.out.println("The book already exists in the library.");
+                            } else {
+                                System.out.println("Enter the Quantity of the book: ");
+                                int quantity = sc.nextInt();
+                                
+                                // Append the new book to x.txt
+                                FileWriter fileX = new FileWriter("x.txt", true);
+                                BufferedWriter writerX = new BufferedWriter(fileX);
+                                writerX.write("\n---------------------------------------------------------\n"
+                                		+ "| Book name: "+name + " | Qnt:"+quantity+"|\n---------------------------------------------------------");
+                                writerX.close();
+                                
+                                // Append the quantity of the new book to y.txt
+                                FileWriter fileY = new FileWriter("y.txt", true);
+                                BufferedWriter writerY = new BufferedWriter(fileY);
+                                writerY.write("\nBOOK QUANTITY "+quantity );
+                                writerY.close();
+                                
                                 tree.insert(name);
-                                map.put(name,i);
-                                map.get(name);
-                                System.out.println(i);
-                                ar[i][0]+=qunt;
-
-                                ar[i][1]+=qunt;
+                                map.put(name, i);
+                                ar[i][0] += quantity;
+                                ar[i][1] += quantity;
                                 i++;
+                                System.out.println("Book added successfully.");
                             }
                             break;
+
                             //DELETE BOOK
                         case 2:
                         System.out.println("\nEnter the name of book");
@@ -369,6 +388,7 @@ class Student
 										System.out.println("\nEnter quantity of book to add more:");
 										int q = sc.nextInt();
 										ar[a][0]+=q;
+										ar[a][1]+=q;
 										
 									}
 									else {
@@ -393,15 +413,18 @@ class Student
 							break;
 							
 							case 5:	//To Print Books in-order
+								System.out.println("----------------------BOOKS AVAILABLE----------------------");
 								   tree.inorder();
 							break;
 							
 							case 6://To print binary search tree
+								System.out.println("----------------------BOOKS TREE----------------------");
 								tree.printTree();
 							break;
 							
 							case 7:
 								e2=true;
+								e3=false;
 								break;
 								
 						}
@@ -453,7 +476,7 @@ class Student
                                     Cday=cal.getTime();
                                     System.out.println("Current Date Time : "+formatter.format(cal.getTime()));
                                     cal.add(Calendar.SECOND,5);
-                                    Rday1=cal.getTime();
+                                    Rday1=tree.calculateDueDate();
                                     System.out.println("Due Date Time: "+formatter.format(Rday1));
                                     array[index].book_no++;
                                     br.write("\nStudent name:	" + array[index].name);
