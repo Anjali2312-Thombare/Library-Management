@@ -138,13 +138,7 @@ class Student
          return root;
 
       }
-     void inorderRecForFileWrite(Node root, BufferedWriter br) throws IOException {
-         if (root != null) {
-             inorderRecForFileWrite(root.left, br);
-             br.write(root.key + "\n"); // Write each book name followed by a new line
-             inorderRecForFileWrite(root.right, br);
-         }
-     }
+   
     
      String minValue(Node root){
         String minv=root.key;
@@ -472,7 +466,7 @@ class Student
                             if(Rday2.after(Rday1)){ //if you are returnig book after the due date 
                                 System.out.println("Book is overdue.");
                                 long diff=Rday2.getTime()-Rday1.getTime();
-                                int noofdays=(int)(diff/(2000*24*60*60*));
+                                int noofdays=(int)(diff/(2000*24*60*60));
                                 System.out.println("Due Date Time: " + formatter.format(Rday2));
                                 System.out.println("book is delayed by " + noofdays + "seconds." + diff);
                                 double charge =noofdays*5;
@@ -517,3 +511,5 @@ class Student
 
 
         }
+        
+
