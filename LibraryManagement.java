@@ -103,10 +103,7 @@ class Student
         return root;
 
      }
-     void update(String key,String key1){
-        delete(key);
-        insert(key1);
-     }
+    
 
      void delete(String key) {
          root = deleteRec(root, key);
