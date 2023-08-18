@@ -1,3 +1,4 @@
+
 import java.util.Date; 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,7 +29,7 @@ class Student
 
  class Library
 {
-    //sortint algorithm for sorting the student by id 
+    //sorting algorithm for sorting the student by id 
     void selectionSort(Student arr[])
     {
         int n=arr.length;
@@ -63,6 +64,7 @@ class Student
             System.out.print("Name : "+arr[i].name+"\t");
             System.out.print("ID : "+arr[i].id_no+"\t");
             System.out.print("Name : "+arr[i].stream+"\t");
+            System.out.println("Books issued:"+arr[i].book1+" , "+arr[i].book2);
 
         }
     }
@@ -108,20 +110,34 @@ class Student
 
      void delete(String key) {
          root = deleteRec(root, key);
-         if (root != null) {
-             // Update "x.txt" file with the updated book list after deletion
-             try {
-                 File file = new File("x.txt");
-                 FileWriter fr = new FileWriter(file, false); // Set the second argument to 'false' to overwrite the file
-                 BufferedWriter br = new BufferedWriter(fr);
-                 inorderRecForFileWrite(root, br);
-                 br.close();
-                 fr.close();
-             } catch (IOException e) {
-                 e.printStackTrace();
-             }
-         }
+       
      }
+     Node deleteRec(Node root,String key){
+         if(root==null){
+             return root;
+         }
+         if(key.compareTo(root.key)<0){
+             root.left=deleteRec(root.left,key);
+
+         }
+         else if(key.compareTo(root.key)>0){
+             root.right=deleteRec(root.right,key);
+         }
+         else{
+             if(root.left==null){
+                 return root.right;
+             }
+             else if(root.right==null){
+                 return root.left;
+
+             }
+             root.key=minValue(root.right);
+             root.right=deleteRec(root.right,root.key);
+
+         }
+         return root;
+
+      }
      void inorderRecForFileWrite(Node root, BufferedWriter br) throws IOException {
          if (root != null) {
              inorderRecForFileWrite(root.left, br);
@@ -129,32 +145,7 @@ class Student
              inorderRecForFileWrite(root.right, br);
          }
      }
-     Node deleteRec(Node root,String key){
-        if(root==null){
-            return root;
-        }
-        if(key.compareTo(root.key)<0){
-            root.left=deleteRec(root.left,key);
-
-        }
-        else if(key.compareTo(root.key)>0){
-            root.right=deleteRec(root.right,key);
-        }
-        else{
-            if(root.left==null){
-                return root.right;
-            }
-            else if(root.right==null){
-                return root.left;
-
-            }
-            root.key=minValue(root.right);
-            root.right=deleteRec(root.right,root.key);
-
-        }
-        return root;
-
-     }
+    
      String minValue(Node root){
         String minv=root.key;
         while(root.left!=null){
@@ -206,31 +197,21 @@ class Student
 
     }
     void printTree(){
-        root=printTreeRec(root,0);
+        root=printTreeRec(root);
 
     }
-    Node printTreeRec(Node node,int space){
+    Node printTreeRec(Node node){
         if(node==null){
             return root;
         }
-        space+=5;
-        printTreeRec(node.right,space);
+       
+       
         System.out.println();
         System.out.print("["+node.key+"]");
-        return printTreeRec(node.left,space);
+        printTreeRec(node.left);
+        return printTreeRec(node.right);
     }
-    void writeToTextFile(String bookName, int quantity) {
-        try {
-            FileWriter fw = new FileWriter("books.txt", true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(bookName + "," + quantity); // Writing book name and quantity in the format "BookName,Quantity"
-            bw.newLine(); // Adding a new line for the next book
-            bw.close();
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+   
     Date calculateDueDate() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 7); // Adding 7 days to the current date
@@ -250,34 +231,9 @@ class Student
         array[0]=new Student("Rudra",1205,"B.techETC");
         array[1]=new Student("Rashmi",1201,"B.techCSE");
         array[2]=new Student("vanshika",1200,"B.techCivil");
-        int [][]ar=new int [100][5];
+        int [][]ar=new int [100][3];
         Scanner st=new Scanner(System.in); 
-        //Create file to store data of students.
-    
-		FileWriter fr = new FileWriter("append.txt", true);
-
-		BufferedWriter br = new BufferedWriter(fr);
-		
-		FileWriter fr1 = new FileWriter("append.txt", true);
-		BufferedWriter br1 = new BufferedWriter(fr1);
-		
-		FileWriter fr2 = new FileWriter("append.txt", true);
-		BufferedWriter br2 = new BufferedWriter(fr2);
-		
-		FileWriter fr3 = new FileWriter("append.txt", true);
-		BufferedWriter br3 = new BufferedWriter(fr3);
-		
-		FileReader file = new FileReader("x.txt");	
-        		
-		BufferedReader reader = new BufferedReader(file);	
-		
-		FileReader file2= new FileReader("y.txt");			
-		BufferedReader reader2 = new BufferedReader(file2);	
-		
-		FileReader file3= new FileReader("z.txt");			
-		BufferedReader reader3 = new BufferedReader(file3);	
-        
-        
+       
 		
 		Date Rday1=null,Rday2=null,Rday3=null,Cday=null;
         boolean e1=false;
@@ -286,7 +242,7 @@ class Student
         while(e1==false){
             System.out.println("\n------------------------------------------------------------\n");
             System.out.println("1.Librarian Login ");
-            System.out.println("2.User Login");
+            System.out.println("2.Student Login");
             System.out.println("3.Exit");
             System.out.println("\n---------------------------------------------------------------------------\n");
             System.out.println("Enter your choice");
@@ -322,7 +278,8 @@ class Student
                         System.out.println("4.Print book details ");
                         System.out.println("5.Print books Inorder ");
                         System.out.println("6.Print Tree");
-                        System.out.println("7.Exit");
+                        System.out.println("7.Student Details");
+                        System.out.println("8.Exit");
 
                         System.out.println("\n-----------------------------------------------------------------\n");
 
@@ -345,19 +302,7 @@ class Student
                                 System.out.println("Enter the Quantity of the book: ");
                                 int quantity = sc.nextInt();
                                 
-                                // Append the new book to x.txt
-                                FileWriter fileX = new FileWriter("x.txt", true);
-                                BufferedWriter writerX = new BufferedWriter(fileX);
-                                writerX.write("\n---------------------------------------------------------\n"
-                                		+ "| Book name: "+name + " | Qnt:"+quantity+"|\n---------------------------------------------------------");
-                                writerX.close();
-                                
-                                // Append the quantity of the new book to y.txt
-                                FileWriter fileY = new FileWriter("y.txt", true);
-                                BufferedWriter writerY = new BufferedWriter(fileY);
-                                writerY.write("\nBOOK QUANTITY "+quantity );
-                                writerY.close();
-                                
+                              
                                 tree.insert(name);
                                 map.put(name, i);
                                 ar[i][0] += quantity;
@@ -421,8 +366,11 @@ class Student
 								System.out.println("----------------------BOOKS TREE----------------------");
 								tree.printTree();
 							break;
-							
 							case 7:
+								System.out.println("----------------------STUDENT DETAILS ----------------------");
+								tree.display(array);
+								break;
+							case 8:
 								e2=true;
 								e3=false;
 								break;
@@ -479,11 +427,7 @@ class Student
                                     Rday1=tree.calculateDueDate();
                                     System.out.println("Due Date Time: "+formatter.format(Rday1));
                                     array[index].book_no++;
-                                    br.write("\nStudent name:	" + array[index].name);
-									br.write("\nStudent ID  :	" + array[index].id_no);
-									br.write("\nIssued Book :	" + book);
-									br.write("\nIssued date :	" + formatter.format(Cday));
-									br.write("\nReturn date :	" + formatter.format(Rday1));
+                                   
                                 }
                                 else
                                     System.out.println("You can not issue book now \nTry after some days ");
@@ -491,7 +435,7 @@ class Student
                             }
                             
                                 else
-                                    System.out.println("Book is avilable now ");
+                                    System.out.println("Book is not  avilable now ");
  
                         }
 
@@ -506,7 +450,7 @@ class Student
                         int ind =-1;
                         System.out.println("\nEnter your ID : ");
                         int s_id=sc.nextInt();
-                        System.out.println("\nEntervthe name of book ");
+                        System.out.println("\nEnter the name of book ");
                         String Rbook=sc.next();
                         for(int n=0;n<3;n++){
                             if(array[n].id_no==s_id&&(array[n].book1.equalsIgnoreCase(Rbook)==true||array[n].book2.equalsIgnoreCase(Rbook)==true)){
@@ -528,7 +472,7 @@ class Student
                             if(Rday2.after(Rday1)){ //if you are returnig book after the due date 
                                 System.out.println("Book is overdue.");
                                 long diff=Rday2.getTime()-Rday1.getTime();
-                                int noofdays=(int)(diff/(2000/**24*60*60*/));
+                                int noofdays=(int)(diff/(2000*24*60*60*));
                                 System.out.println("Due Date Time: " + formatter.format(Rday2));
                                 System.out.println("book is delayed by " + noofdays + "seconds." + diff);
                                 double charge =noofdays*5;
@@ -549,7 +493,7 @@ class Student
                     }
                 }
                     catch(Exception e){
-                      System.out.println("Something is going to be wrong ");
+                      System.out.println("Something went wrong ");
                     }
                     break;
                     
@@ -568,20 +512,8 @@ class Student
             }
         }
 
-        br.close();
-		fr.close();
-		br1.close();
-		fr1.close();
-		br2.close();
-		fr2.close();
-		br3.close();
-		fr3.close();
-		reader.close();
-		reader2.close();
-		reader3.close();
+        
             }
 
 
         }
-        
-
